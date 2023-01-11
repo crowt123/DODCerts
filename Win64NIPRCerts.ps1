@@ -5,9 +5,10 @@ This script is for doing a temp download and certificate update of installroot o
 
 #file download
 echo "file download"
-$TempDir   =  "$env:TEMP" + "\postinstall"
-$TempFile  =  "$TempDir" + "\InstallRoot_5.5x64.msi"
-rmdir -Path $TempDir -Recurse -Force
+$TempDir    =  "$env:TEMP" + "\postinstall"
+$TempFile   =  "$TempDir" + "\InstallRoot_5.5x64.msi"
+$IfTempDir  =  Test-Path $TempDir
+if ($IfTempDir -eq $True) {rmdir -Path $TempDir -Recurse -Force -verbose}
 mkdir $TempDir -Force
 
 Invoke-WebRequest -Uri https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/msi/InstallRoot_5.5x64.msi -OutFile $TempFile
@@ -32,6 +33,6 @@ popd
 #delete temp files
 echo "delete temp files"
 sleep -Seconds 3
-rmdir -Path $TempDir -Recurse -Force
+rmdir -Path $TempDir -Recurse -Force -verbose
 
-powershell -WindowStyle hidden -Command "& {[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.MessageBox]::Show('This script updates the windows certificate store. To force firefox to pull from the windows store type about:config like you would a normal website into the firefox browser, accept the security prompt, search for security.enterprise_roots.enabled, and change the value from False to True.','WARNING')}"
+powershell -Command "& {[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.MessageBox]::Show('This script updates the windows certificate store. To force firefox to pull from the windows store type about:config like you would a normal website into the firefox browser, accept the security prompt, search for security.enterprise_roots.enabled, and change the value from False to True.','WARNING')}"
