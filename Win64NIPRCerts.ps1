@@ -1,5 +1,5 @@
 <#
-This script is for doing a temp download and certificate update of installroot on x64 window.
+This script is for doing a temp download and certificate update of installroot on x64 windows.
 -Crowson
 #>
 
@@ -11,30 +11,27 @@ rmdir -Path $TempDir -Recurse -Force
 mkdir $TempDir -Force
 
 Invoke-WebRequest -Uri https://dl.dod.cyber.mil/wp-content/uploads/pki-pke/msi/InstallRoot_5.5x64.msi -OutFile $TempFile
-if ($LASTEXITCODE -eq 0) {echo "success"} else {sleep 10}
 
 #install
 echo "install"
 pushd $TempDir
-powershell -Command "Msiexec /package InstallRoot_5.5x64.msi /passive /norestart"
-if ($LASTEXITCODE -eq 0) {echo "success"} else {sleep 10}
+cmd.exe /C "Msiexec /package InstallRoot_5.5x64.msi /passive /norestart"
 popd
 
 #update certs
 echo "update certs"
 & "C:\Program Files\DoD-PKE\InstallRoot\InstallRoot.exe" --update
-if ($LASTEXITCODE -eq 0) {echo "success"} else {sleep 10}
 & "C:\Program Files\DoD-PKE\InstallRoot\InstallRoot.exe" --insert
-if ($LASTEXITCODE -eq 0) {echo "success"} else {sleep 10}
 
 #uninstall
 echo "uninstall"
 pushd $TempDir
-powershell -Command "Msiexec /uninstall InstallRoot_5.5x64.msi /quiet"
-if ($LASTEXITCODE -eq 0) {echo "success"} else {sleep 10}
+cmd.exe /C "Msiexec /uninstall InstallRoot_5.5x64.msi /passive"
 popd
 
 #delete temp files
 echo "delete temp files"
-sleep -Seconds 10
+sleep -Seconds 3
 rmdir -Path $TempDir -Recurse -Force
+
+powershell -WindowStyle hidden -Command "& {[System.Reflection.Assembly]::LoadWithPartialName('System.Windows.Forms'); [System.Windows.Forms.MessageBox]::Show('This script updates the windows certificate store. To force firefox to pull from the windows store type about:config like you would a normal website into the firefox browser, accept the security prompt, search for security.enterprise_roots.enabled, and change the value from False to True.','WARNING')}"
